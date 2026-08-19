@@ -59,6 +59,29 @@ SEQ_LIMITS = {
 }
 MSA_MAX_SIZE = 16384
 
+def load_seq_to_pdb_idx(seq_to_pdb_idx_path: str, entity_type: str = "prot") -> dict:
+    """Load the sequence -> precomputed-MSA index, tolerating its absence.
+
+    The index only maps sequences to MSAs that were precomputed for training; it ships with
+    the release data and is not needed for inference, where any sequence missing from the
+    index falls through to an on-the-fly `msa_search`. Crashing on a missing file therefore
+    blocks inference on data it never uses. Warn loudly instead: an empty index is correct
+    for inference, but silently emptying it during training would send every sample to the
+    online MSA search, so the warning has to be visible.
+    """
+    if not seq_to_pdb_idx_path or not opexists(seq_to_pdb_idx_path):
+        logger.warning(
+            f"[msa] {entity_type} seq_to_pdb index not found at "
+            f"'{seq_to_pdb_idx_path}'; falling back to an empty index. Sequences will be "
+            "searched on the fly (fine for inference). If you are TRAINING with "
+            "precomputed MSAs, this is a misconfiguration: check BIOKINEMA_DATA_ROOT and "
+            "that release_data was extracted."
+        )
+        return {}
+    with open(seq_to_pdb_idx_path, "r") as f:
+        return json.load(f)
+
+
 def msa_search(
     seqs: Sequence[str], msa_res_dir: str, mode: str = "protenix"
 ) -> Sequence[str]:
@@ -349,8 +372,7 @@ class PROTMSAFeaturizer(BaseMSAFeaturizer):
         else:
             self.non_pairing_db = [db_name for db_name in non_pairing_db.split(",")]
 
-        with open(seq_to_pdb_idx_path, "r") as f:
-            self.seq_to_pdb_idx = json.load(f)
+        self.seq_to_pdb_idx = load_seq_to_pdb_idx(seq_to_pdb_idx_path, "prot")
         # If distillation data is avaiable
         if distillation_index_file is not None:
             with open(distillation_index_file, "r") as f:

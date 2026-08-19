@@ -347,6 +347,13 @@ data_configs[f"inference"]["base_info"].update(
 )
 # Inference computes embeddings on-the-fly; no precomputed embedding dir.
 data_configs[f"inference"]["precomputed_emb_dir"] = ""
+# MSA cache for inference: sequences missing from the precomputed index are searched online
+# and cached here (msa_featurizer.msa_search reuses an existing hit instead of re-searching).
+# Inference-only on purpose: inherited from atlas this would land in the Atlas *training* data
+# dir, which an inference-only user does not have. Training datasets keep their own paths.
+data_configs[f"inference"]["msa_cache_path"] = os.environ.get(
+    "BIOKINEMA_MSA_CACHE_DIR", os.path.join(DATA_ROOT_DIR, "msa")
+)
 
 
 bioemu_root = os.path.join(UNBINDING_DATA_ROOT_DIR, "bioemu")

@@ -27,7 +27,9 @@ bash inference.sh \
 ## Inputs
 
 - A single-chain or complex `.pdb` / `.cif`. MSA is fetched/cached automatically
-  (`--data.msa.enable true`); the cache dir is controlled by `BIOKINEMA_MSA_CACHE_DIR`.
+  (`--data.msa.enable true`); the cache dir defaults to `$BIOKINEMA_DATA_ROOT/msa` and can be
+  overridden with `BIOKINEMA_MSA_CACHE_DIR`. A cached search is reused, so re-running the same
+  system is offline.
 - Embeddings are computed on the fly (no precomputed embeddings needed for inference).
 
 ## Outputs
