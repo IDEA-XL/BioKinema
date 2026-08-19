@@ -43,7 +43,7 @@ Usage (release recipe — MSR datasets, from raw bioassembly data):
       --max-gmm-components 5 \\
       --n-workers 64
   # (TICA lag defaults: --n-tica-dims 5, --tica-lagtime-frames 1 = 10 ns for MSR.)
-  # Repeat per MSR dataset (CATH1 / megasim / megasimmutant / octapeptide), matching the
+  # Repeat per MSR dataset (CATH1 / CATH2 / octapeptide), matching the
   # cache-dir name configs/configs_data.py expects: {NAME}_lag10ns_from100ns_multiK.
 """
 

@@ -42,8 +42,8 @@ MASTER_PORT=${MASTER_PORT:-29501}
 
 # ---- recipe (defaults = "sqrt": complexes + short MD). Override via env for the
 #      "beta=0.25" recipe (long single-chain MD), e.g.:
-#   TRAIN_SETS=MSR-CATH2,MSR-CATH1,MSR-megasim,MSR-megasimmutant,MSR-octapeptide \
-#   TEST_SETS=MSR-CATH2 SAMPLE_WEIGHTS=0.444,0.056,0.003,0.197,0.087 BETA=0.25 \
+#   TRAIN_SETS=MSR-CATH2,MSR-CATH1,MSR-octapeptide \
+#   TEST_SETS=MSR-CATH2 SAMPLE_WEIGHTS=0.756,0.095,0.148 BETA=0.25 \
 #   RUN_NAME=BioKinema_beta0.25 bash train_trajectory.sh
 #   (also export BIOKINEMA_MSR_ROOT and BIOKINEMA_MSM_CACHES for the MSR sets).
 RUN_NAME="${RUN_NAME:-BioKinema_atlas+misato+mdposit}"

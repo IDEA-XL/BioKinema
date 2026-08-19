@@ -130,7 +130,7 @@ BioKinema is trained with a single **trajectory-generation** procedure (`train_t
 | Checkpoint | Data | `β` | Dynamics losses |
 |------------|------|-----|-----------------|
 | `sqrt` | Atlas + MISATO + MDposit | 0.5 | RMSF / RelRMSF / LocalRMSF / ACF / ensemble |
-| `beta=0.25` | MSR (CATH / MegaSim / octapeptides) | 0.25 | + TICA-dynamics |
+| `beta=0.25` | MSR (CATH / octapeptides) | 0.25 | + TICA-dynamics |
 
 Every training config reads precomputed Pairformer embeddings (regenerate with `scripts/encode_embeddings.sh`); data roots are set via `BIOKINEMA_*` environment variables. See **[docs/data_and_training.md](docs/data_and_training.md)** for the full download → preprocess → embeddings → train walkthrough.
 

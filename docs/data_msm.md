@@ -1,6 +1,6 @@
 # Atlas & MSR data preparation + MSM caches
 
-For Atlas and the MSR datasets (MDCATH / MegaSim / octapeptides) the preprocessing is
+For Atlas and the MSR datasets (MDCATH / octapeptides) the preprocessing is
 simple enough to publish directly. The pipeline turns raw MD trajectories into the
 per-frame `bioassembly_dict` pickles + index CSVs the training code consumes.
 
@@ -22,7 +22,7 @@ python scripts/data_prep/prepare_training_data.py \
     -d Atlas -n 32
 ```
 
-## MSR (BioEmu-format: MDCATH, MegaSim, octapeptides)
+## MSR (BioEmu-format: MDCATH, octapeptides)
 
 ```bash
 # frames -> per-frame mmCIF (10 ns interval), grouped by system
@@ -51,7 +51,7 @@ python scripts/msm/build_multiK_msm.py \
     --csv-dir  $BIOKINEMA_MSR_ROOT/MDCATH/MSR_cath2_biokinema/csv \
     --out-dir  $BIOKINEMA_MSM_CACHES/CATH2_lag10ns_from100ns_multiK \
     --k-values 10,20,50 --max-gmm-components 5 --n-workers 64
-# Repeat per MSR dataset (CATH1 / megasim / megasimmutant / octapeptide).
+# Repeat per MSR dataset (CATH1 / octapeptide).
 ```
 
 Each cache stores, per system: a TICA basis (Cα–Cα pairwise distances, 10 ns lag, 5 components),

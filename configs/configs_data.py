@@ -25,7 +25,7 @@ from protenix.config.extend_types import GlobalConfigValue, ListValue
 #   BIOKINEMA_UNBINDING_ROOT -> unbinding/MISATO/MDposit processed data (see scripts/codec)
 #   BIOKINEMA_MISATO_ROOT    -> defaults to BIOKINEMA_UNBINDING_ROOT
 #   BIOKINEMA_MSM_CACHES     -> prebuilt MSM caches (see scripts/msm)
-#   BIOKINEMA_MSR_ROOT       -> BioEmu/MSR datasets (CATH1/CATH2/megasim/...)
+#   BIOKINEMA_MSR_ROOT       -> BioEmu/MSR datasets (CATH1/CATH2/octapeptides)
 DATA_ROOT_DIR = os.environ.get("BIOKINEMA_DATA_ROOT", "./release_data")
 ATLAS_DATA_ROOT_DIR = os.environ.get("BIOKINEMA_ATLAS_ROOT", "./data/atlas")
 UNBINDING_DATA_ROOT_DIR = os.environ.get("BIOKINEMA_UNBINDING_ROOT", "./data")
@@ -498,8 +498,6 @@ MSR_ROOT = os.environ.get("BIOKINEMA_MSR_ROOT", "./data/MSR")
 data_root_dict = {
     "CATH2": os.path.join(MSR_ROOT, "MDCATH/MSR_cath2_biokinema"),
     "CATH1": os.path.join(MSR_ROOT, "MDCATH/ONE_cath1_biokinema"),
-    "megasim": os.path.join(MSR_ROOT, "MegaSim/MSR_megasim_merge_biokinema"),
-    "megasimmutant": os.path.join(MSR_ROOT, "MegaSim/MSR_megasim_mutants_disp_allatom_biokinema"),
     "octapeptide": os.path.join(MSR_ROOT, "octapeptides/ONE_octapeptides_biokinema"),
     }
 

@@ -18,7 +18,7 @@ BioKinema releases two checkpoints (download: <https://huggingface.co/fengb/BioK
 | Checkpoint | For | `beta` | Training data | Active dynamics loss |
 |---|---|---|---|---|
 | **`sqrt`** | complexes (protein–ligand) + **short-time** MD | 0.5 | Atlas + MISATO + MDposit (+ unbinding) | RMSF / RelRMSF / LocalRMSF / ACF / ensemble |
-| **`beta=0.25`** | **long-time, single-chain** protein MD | 0.25 | MSR (CATH2 / MegaSim / octapeptides) | + TICA-dynamics (needs MSM caches) |
+| **`beta=0.25`** | **long-time, single-chain** protein MD | 0.25 | MSR (CATH2 / octapeptides) | + TICA-dynamics (needs MSM caches) |
 
 Both are produced by the **same** trajectory-generation training (`train_trajectory.sh`),
 differing only in the training data and `β`.
@@ -31,7 +31,7 @@ differing only in the training data and `β`.
 |---|---|---|---|
 | **Base PDB / CCD** (`BIOKINEMA_DATA_ROOT`) | both | `https://af3-dev.tos-cn-beijing.volces.com/release_data.tar.gz` | `wget` + untar into `$BIOKINEMA_DATA_ROOT` |
 | **Atlas** (`BIOKINEMA_ATLAS_ROOT`) | `sqrt` | ATLAS DB (public) | `scripts/data_prep/download_atlas.sh` → `convert_xtc_to_cif.py` → `prepare_training_data.py` |
-| **MSR: mdCATH / MegaSim / octapeptides** (`BIOKINEMA_MSR_ROOT`) | `beta=0.25` | Zenodo: CATH `10.5281/zenodo.15629740`, Octapeptides `…15641199`, MegaSim `…15641184` | `convert_xtc_to_cif_bioemu.py` → `prepare_training_data_bydir.py` → `scripts/msm` |
+| **MSR: mdCATH / octapeptides** (`BIOKINEMA_MSR_ROOT`) | `beta=0.25` | Zenodo: CATH `10.5281/zenodo.15629740`, Octapeptides `…15641199` | `convert_xtc_to_cif_bioemu.py` → `prepare_training_data_bydir.py` → `scripts/msm` |
 | **MISATO / MDposit / unbinding** (`BIOKINEMA_UNBINDING_ROOT`) | `sqrt` | preprocessing too source-specific to publish | **download our compressed pre-processed data** (codec; see §4) — no raw download needed |
 | **MSM caches** (`BIOKINEMA_MSM_CACHES`) | `beta=0.25` (TICA loss) | — | build from the MSR data with `scripts/msm` (§3) |
 
@@ -58,17 +58,17 @@ python scripts/data_prep/prepare_training_data.py \
     -i $BIOKINEMA_ATLAS_ROOT/mmcif -o $BIOKINEMA_ATLAS_ROOT/indices.csv \
     -b $BIOKINEMA_ATLAS_ROOT/mmcif_bioassembly -d Atlas -n 32
 ```
-The 81/39/1266 train/val/test system lists are in `scripts/splits/` (regenerated from the
+The 1266/39/81 train/val/test system lists are in `scripts/splits/` (regenerated from the
 released indices; `test` = the 81 benchmark targets).
 
-## 3. MSR — mdCATH / MegaSim / octapeptides (recipe)
+## 3. MSR — mdCATH / octapeptides (recipe)
 
 ```bash
 export BIOKINEMA_MSR_ROOT=/path/to/MSR
 ROOT=$BIOKINEMA_MSR_ROOT/MDCATH/MSR_cath2_biokinema   # one dataset; repeat per dataset
 
-# (1) download raw MD from Zenodo (CATH 10.5281/zenodo.15629740, Octapeptides 10.5281/zenodo.15641199,
-#     MegaSim 10.5281/zenodo.15641184) and extract, then:
+# (1) download raw MD from Zenodo (CATH 10.5281/zenodo.15629740,
+#     Octapeptides 10.5281/zenodo.15641199) and extract, then:
 # (2) frames -> per-frame mmCIF (10 ns interval), grouped by system
 python scripts/data_prep/convert_xtc_to_cif_bioemu.py --bioemu_dir /raw/mdcath --outdir $ROOT --num_workers 32
 # (3) mmCIF -> bioassembly pickles + per-system CSVs
@@ -117,7 +117,7 @@ Data roots are set via environment variables (resolved in `configs/configs_data.
 | `BIOKINEMA_DATA_ROOT` | base PDB/CCD release data (`components.cif`, MSA index, …) |
 | `BIOKINEMA_ATLAS_ROOT` | Atlas mmcif / bioassembly / indices |
 | `BIOKINEMA_UNBINDING_ROOT` (= MISATO root) | MISATO / MDposit / unbinding (codec bundle) |
-| `BIOKINEMA_MSR_ROOT` | mdCATH / MegaSim / octapeptides |
+| `BIOKINEMA_MSR_ROOT` | mdCATH / octapeptides |
 | `BIOKINEMA_MSM_CACHES` | prebuilt MSM caches (TICA-dynamics loss) |
 | `BIOKINEMA_INIT_CKPT` | checkpoint to initialize training from |
 
@@ -135,9 +135,9 @@ export BIOKINEMA_INIT_CKPT=/path/to/init.pt
 export BIOKINEMA_MSR_ROOT=/path/to/MSR  BIOKINEMA_MSM_CACHES=/path/to/msm_caches
 NPROC_PER_NODE=8 \
 RUN_NAME=BioKinema_beta0.25 \
-TRAIN_SETS=MSR-CATH2,MSR-CATH1,MSR-megasim,MSR-megasimmutant,MSR-octapeptide \
+TRAIN_SETS=MSR-CATH2,MSR-CATH1,MSR-octapeptide \
 TEST_SETS=MSR-CATH2 \
-SAMPLE_WEIGHTS=0.444,0.056,0.003,0.197,0.087 \
+SAMPLE_WEIGHTS=0.756,0.095,0.148 \
 BETA=0.25 \
 bash train_trajectory.sh
 ```
@@ -155,7 +155,7 @@ args are forwarded to `runner/train.py`. On resume also pass `--load_ema_checkpo
 |---|---|
 | Base PDB / CCD (`release_data`) + init checkpoint | `https://af3-dev.tos-cn-beijing.volces.com/{release_data.tar.gz, release_model/model_v0.2.0.pt}` |
 | Atlas | `scripts/data_prep/download_atlas.sh` (§2) |
-| MSR raw MD: CATH / Octapeptides / MegaSim | Zenodo `10.5281/zenodo.{15629740, 15641199, 15641184}` |
+| MSR raw MD: CATH / Octapeptides | Zenodo `10.5281/zenodo.{15629740, 15641199}` |
 | MISATO / MDposit / unbinding codec bundle | <https://huggingface.co/fengb/BioKinema> |
 | Checkpoints (`sqrt`, `beta=0.25`) | <https://huggingface.co/fengb/BioKinema> |
 | MSM caches | built from the MSR data via `scripts/msm` (§3) |
